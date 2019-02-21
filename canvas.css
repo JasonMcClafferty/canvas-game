@@ -1,0 +1,48 @@
+
+body {
+
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 200;
+
+    background-color: steelblue;
+
+}
+
+.main {
+
+}
+
+#header {
+    height: 5%;
+
+    text-align: center;
+}
+
+#header-text {
+    margin: 25px;
+    color: #EEEDDB;
+    text-shadow: 1.5px 1px darkslategray;
+}
+
+#footer {
+    height: 25%;
+}
+
+.sidebar {
+    display: inline;
+    width: 300px;
+}
+
+#mycanvas {
+
+    border: darkslategray solid 5px;
+    background-color: cornsilk;
+
+    width: 800px;
+    height: 800px;
+
+    display: block;
+    margin: 0 auto;
+    padding: 0;
+
+}
