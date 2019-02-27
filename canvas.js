@@ -1,10 +1,14 @@
 
-var plX, plY;
+var plX,
+    plY,
+    speed;
 
 var clearButton, drawButton;
 
 var ctx, stopGame;
 
+
+var Keys;
 // Making sure the page is set up correctly before the game starts.
 window.onload = setup;
 
@@ -24,8 +28,17 @@ window.main = function () {
 // setup method to load everything sequentially before the game starts.
 function setup() {
 
+    keys = {
+        up: false,
+        down: false,
+        left: false,
+        right: false
+    }
+
     plX = 50;
     plY = 80;
+
+    speed = 2;
 
     drawButton = document.getElementById("draw-button");
     clearButton = document.getElementById("clear-button");
@@ -35,25 +48,6 @@ function setup() {
 
     document.addEventListener('keydown', function(event) {
 
-        if(event.keyCode == 65) {
-            // alert('Left was pressed');
-            plX = plX - 5;
-        }
-        else if(event.keyCode == 68) {
-            // alert('Right was pressed');
-            plX = plX + 5;
-        }
-
-        if (event.keyCode == 87) {
-            // alert('Up Arrow');
-            plY = plY - 5;
-        }
-
-        else if (event.keyCode == 83) {
-            // alert('Down Arrow');
-            plY =  plY + 5;
-        }
-
         if (event.keyCode == 32) {
 
             clCanvas();
@@ -62,14 +56,72 @@ function setup() {
     });
 
 
-
     // Game loop
     main();
+
+
+
 }
+        window.onkeydown = function(e) {
+
+            var kc = e.keyCode;
+
+            if (kc === 65) {
+                keys.left = true;
+            }
+            if (kc === 68) {
+                keys.right = true;
+            }
+
+            if (kc === 87) {
+                keys.up = true;
+            }
+
+            if (kc === 83) {
+                keys.down = true;
+            }
+        }
+
+        window.onkeyup = function(e) {
+
+            var kc = e.keyCode;
+
+            if(kc === 65) {
+                keys.left = false;
+            }
+            if(kc === 68) {
+                keys.right = false;
+            }
+
+            if (kc === 87) {
+                keys.up = false;
+            }
+
+            if (kc === 83) {
+                keys.down = false;
+            }
+
+        }
 
 
 function update() {
     //console.log('update');
+
+    if (keys.up) {
+        plY -= speed;
+    }
+
+    if (keys.down) {
+        plY += speed;
+    }
+
+    if (keys.left) {
+        plX -= speed;
+    }
+
+    if (keys.right) {
+        plX += speed;
+    }
 
 
 
