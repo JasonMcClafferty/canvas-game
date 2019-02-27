@@ -3,18 +3,21 @@ var plX, plY;
 
 var clearButton, drawButton;
 
-var ctx;
+var ctx, stopGame;
 
 // Making sure the page is set up correctly before the game starts.
 window.onload = setup;
 
 // couple the game loop to the browser
+
 window.main = function () {
-    window.requestAnimationFrame(main);
+    stopGame = window.requestAnimationFrame(main);
 
 
     update();
     render();
+
+
 }
 
 
@@ -27,7 +30,7 @@ function setup() {
     drawButton = document.getElementById("draw-button");
     clearButton = document.getElementById("clear-button");
 
-    drawButton.onclick = test;
+    drawButton.onclick = draw;
     clearButton.onclick = clCanvas;
 
     document.addEventListener('keydown', function(event) {
@@ -41,7 +44,7 @@ function setup() {
             plX = plX + 5;
         }
 
-        else if (event.keyCode == 87) {
+        if (event.keyCode == 87) {
             // alert('Up Arrow');
             plY = plY - 5;
         }
@@ -52,9 +55,13 @@ function setup() {
         }
 
         if (event.keyCode == 32) {
+
             clCanvas();
+            window.cancelAnimationFrame(stopGame);
         }
     });
+
+
 
     // Game loop
     main();
@@ -62,10 +69,17 @@ function setup() {
 
 
 function update() {
+    //console.log('update');
+
 
 
 }
+
 function render () {
+    //console.log('render');
+
+    clCanvas();
+    draw();
 
 }
 
@@ -74,11 +88,11 @@ function clCanvas() {
     
     ctx = document.getElementById('canvas').getContext('2d');
 
-    ctx.clearRect(0, 0, 300, 300);
+    ctx.clearRect(0, 0, 500, 500);
 
 }
 
-function test() {
+function draw() {
 
     ctx = document.getElementById('canvas').getContext('2d');
 
