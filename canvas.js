@@ -1,16 +1,63 @@
 
 var plX,
     plY,
-    speed;
+    speed,
+    score;
 
-var clearButton, drawButton;
+var goalX,
+    goalY,
+    goalSize;
 
 var ctx, stopGame;
 
+var keys = {};
 
-var Keys;
+
 // Making sure the page is set up correctly before the game starts.
 window.onload = setup;
+
+// Using onkey instead of new event handling to allow
+// simultaneous movement across 2 dimensions.
+window.onkeydown = function(e) {
+
+    var kc = e.keyCode;
+
+    if (kc === 65) {
+        keys.left = true;
+    }
+    if (kc === 68) {
+        keys.right = true;
+    }
+
+    if (kc === 87) {
+        keys.up = true;
+    }
+
+    if (kc === 83) {
+        keys.down = true;
+    }
+}
+window.onkeyup = function(e) {
+
+    var kc = e.keyCode;
+
+    if(kc === 65) {
+        keys.left = false;
+    }
+    if(kc === 68) {
+        keys.right = false;
+    }
+
+    if (kc === 87) {
+        keys.up = false;
+    }
+
+    if (kc === 83) {
+        keys.down = false;
+    }
+
+}
+
 
 // couple the game loop to the browser
 
@@ -24,9 +71,9 @@ window.main = function () {
 
 }
 
-
 // setup method to load everything sequentially before the game starts.
 function setup() {
+    ctx = document.getElementById('canvas').getContext('2d');
 
     keys = {
         up: false,
@@ -40,11 +87,12 @@ function setup() {
 
     speed = 2;
 
-    drawButton = document.getElementById("draw-button");
-    clearButton = document.getElementById("clear-button");
+    score = 0;
 
-    drawButton.onclick = draw;
-    clearButton.onclick = clCanvas;
+    goalX = 150;
+    goalY = 200;
+
+    goalSize = 50;
 
     document.addEventListener('keydown', function(event) {
 
@@ -59,49 +107,7 @@ function setup() {
     // Game loop
     main();
 
-
-
 }
-        window.onkeydown = function(e) {
-
-            var kc = e.keyCode;
-
-            if (kc === 65) {
-                keys.left = true;
-            }
-            if (kc === 68) {
-                keys.right = true;
-            }
-
-            if (kc === 87) {
-                keys.up = true;
-            }
-
-            if (kc === 83) {
-                keys.down = true;
-            }
-        }
-
-        window.onkeyup = function(e) {
-
-            var kc = e.keyCode;
-
-            if(kc === 65) {
-                keys.left = false;
-            }
-            if(kc === 68) {
-                keys.right = false;
-            }
-
-            if (kc === 87) {
-                keys.up = false;
-            }
-
-            if (kc === 83) {
-                keys.down = false;
-            }
-
-        }
 
 
 function update() {
@@ -124,22 +130,32 @@ function update() {
     }
 
 
+    if (plX > goalX
+        && plX < goalX + goalSize
+        && plY > goalY
+        && plY < goalY + goalSize)
+    {
+        score ++;
+        resetGoal();
+    }
 
 }
 
 function render () {
-    //console.log('render');
 
+    // clear and draw the canvas - coupled to the rate at
+    // which the browser can push frames.
     clCanvas();
     draw();
 
+    ctx.font = "20px Exo 2";
+    ctx.fillText("Score: " + score, 15, 15);
 }
 
 
 function clCanvas() {
-    
-    ctx = document.getElementById('canvas').getContext('2d');
 
+    ctx = document.getElementById('canvas').getContext('2d');
     ctx.clearRect(0, 0, 500, 500);
 
 }
@@ -147,11 +163,27 @@ function clCanvas() {
 function draw() {
 
     ctx = document.getElementById('canvas').getContext('2d');
-
     ctx.save();
 
-    ctx.strokestyle = 'black';
 
+    drawPlayer();
+    drawGoal();
+
+}
+
+
+function drawPlayer() {
+    ctx.strokestyle = 'black';
     ctx.fillRect(plX, plY, 10, 10);
 }
 
+function drawGoal() {
+
+    ctx.strokestyle = 'red';
+    ctx.fillRect(goalX, goalY, goalSize, goalSize);
+}
+
+function resetGoal() {
+    goalX = Math.floor(Math.random() * 450);
+    goalY = Math.floor(Math.random() * 450);
+}
