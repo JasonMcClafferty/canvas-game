@@ -8,9 +8,17 @@ var goalX,
     goalY,
     goalSize;
 
+var chX,
+    chY,
+    speed;
+
 var ctx, stopGame;
 
 var keys = {};
+
+var lines = {
+
+};
 
 
 // Making sure the page is set up correctly before the game starts.
@@ -94,6 +102,10 @@ function setup() {
 
     goalSize = 50;
 
+
+    chX =  450;
+    chY = 80;
+
     document.addEventListener('keydown', function(event) {
 
         if (event.keyCode == 32) {
@@ -139,6 +151,15 @@ function update() {
         resetGoal();
     }
 
+    if (plX > (chX + 1)
+        && plX < (chX + 13)
+        && plY > (chY +  1)
+        && plY < (chY + 13))
+    {
+        score -2;
+        resetChaser();
+    }
+
 }
 
 function render () {
@@ -150,6 +171,8 @@ function render () {
 
     ctx.font = "20px Exo 2";
     ctx.fillText("Score: " + score, 15, 15);
+    var dir = directionVector(chX, chY, plX, plY).toString();
+    ctx. fillText(dir, 400, 15);
 }
 
 
@@ -167,19 +190,23 @@ function draw() {
 
 
     drawPlayer();
-    drawGoal();
+    drawGoal()
+    drawChaser();
+
 
 }
 
 
 function drawPlayer() {
-    ctx.strokestyle = 'black';
+
+    ctx.strokeStyle = 'black';
     ctx.fillRect(plX, plY, 10, 10);
+
 }
 
 function drawGoal() {
 
-    ctx.strokestyle = 'red';
+    // ctx.fillStyle = 'red';
     ctx.fillRect(goalX, goalY, goalSize, goalSize);
 }
 
@@ -187,3 +214,40 @@ function resetGoal() {
     goalX = Math.floor(Math.random() * 450);
     goalY = Math.floor(Math.random() * 450);
 }
+
+function drawChaser() {
+
+    ctx.strokeRect(chX, chY, 15, 15);
+}
+
+function resetChaser() {
+
+    chX = 450;
+    chY = 80;
+
+    // Begin follow algorithm
+}
+
+
+/*
+    Finding the direction vector to give the chaser
+    a movement direction, towards the player's
+    current location.
+
+ */
+function directionVector(x, y, a, b) {
+
+    var Vdx = a - x;
+    var Vdy = b - y;
+
+    return [Vdx, Vdy];
+}
+
+/* Finding unit vector to scale the direction
+ * vector by a given speed. Accepts an array to
+ * suit the output of the direction vector method.
+ *
+function unitVector(x) {
+
+    return [Math.sqrt(x[0]^2 + x[1]^2) * x[0], Math.sqrt(x[0]^2 + x[1]^2) * x[1]];
+}*/
