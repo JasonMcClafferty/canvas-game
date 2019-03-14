@@ -1,4 +1,15 @@
 
+
+/*
+    TODO: Scale up everything by x10 in terms of pixel size
+        - Need to implement acceleration and can't have velocity
+          increasing by .2 pixels per frame, because it can only
+          move an integer number of pixels per frame.
+            ------------DONE-------------------
+        - Need to scale up HUD - text etc.
+
+ */
+
 var plX,
     plY,
     speed,
@@ -11,6 +22,8 @@ var goalX,
 var chX,
     chY,
     chaseSpeed;
+
+var acceleration, maxSpeed;
 
 var ctx, stopGame;
 
@@ -50,6 +63,7 @@ window.onkeydown = function(e) {
 }
 window.onkeyup = function(e) {
 
+
     var kc = e.keyCode;
 
     if(kc === 65) {
@@ -78,7 +92,6 @@ window.main = function () {
     update();
     render();
 
-
 }
 
 // setup method to load everything sequentially before the game starts.
@@ -92,21 +105,24 @@ function setup() {
         right: false
     }
 
-    plX = 50;
-    plY = 80;
+    plX = 500;
+    plY = 800;
 
-    speed = 2;
+    speed = 20;
 
     score = 0;
 
-    goalX = 150;
-    goalY = 200;
+    goalX = 1500;
+    goalY = 2000;
 
-    goalSize = 50;
+    goalSize = 500;
 
-    chX =  450;
-    chY = 80;
-    chaseSpeed = 2;
+    chX =  4500;
+    chY = 800;
+    chaseSpeed = 15;
+
+    acceleration = 1;
+    maxSpeed = 12;
 
     dir = directionVector(chX, chY, plX, plY);
 
@@ -121,11 +137,11 @@ function setup() {
     });
 
 
+
     // Game loop
     main();
 
 }
-
 
 function update() {
     //console.log('update');
@@ -137,19 +153,32 @@ function update() {
      *  -   Adds an avoidance mechanic as the chaser
      *      is faster than the player.
      */
-    // s
+    //
+
+
+    if (speed < maxSpeed) {
+        speed += acceleration * 2;
+    }
+
+    if (!keys.up
+        && !keys.down
+        && !keys.right
+        && !keys.left) {
+        speed = 20;
+    }
     if (keys.up) {
         plY -= speed;
 
-        if (plY < -8) {
-            plY = 500;
+        if (plY < -80) {
+            plY = 5000;
         }
     }
 
     if (keys.down) {
+
         plY += speed;
 
-        if (plY > 500) {
+        if (plY > 5000) {
             plY = 0;
         }
     }
@@ -158,15 +187,15 @@ function update() {
         plX -= speed;
 
         if (plX < 0) {
-            plX = 500;
+            plX = 5000;
         }
     }
 
     if (keys.right) {
         plX += speed;
 
-        if (plX > 500) {
-            plX = -10;
+        if (plX > 5000) {
+            plX = -100;
         }
     }
 
@@ -177,13 +206,14 @@ function update() {
         && plY < goalY + goalSize)
     {
         score ++;
+        maxSpeed++;
         resetGoal();
     }
 
-    if ((plX ) >= (chX)
-        && (plX) <= (chX)
-        && (plY) >= (chY)
-        && (plY)<= (chY)) {
+    if ((plX + 50) >= (chX)
+        && (plX + 50) <= (chX + 150)
+        && (plY + 50) >= (chY)
+        && (plY + 50)<= (chY + 150)) {
 
         score -= 2;
         resetChaser();
@@ -191,6 +221,9 @@ function update() {
 
     chase();
 
+    if (maxSpeed % 10 == 0) {
+        chX
+    }
 }
 
 function render () {
@@ -200,18 +233,18 @@ function render () {
     clCanvas();
     draw();
 
-    ctx.font = "20px Exo 2";
-    ctx.fillText("Score: " + score, 15, 15);
+    ctx.font = "200px Exo 2";
+    ctx.fillText("Score: " + score, 150, 150);
 
-    var dirStr = directionVector(chX, chY, plX, plY).toString();
-    ctx. fillText(dirStr, 400, 15);
+    var dirStr = unitVector(directionVector(chX, chY, plX, plY)).toString();
+    ctx. fillText(dirStr, 4000, 150);
 }
 
 
 function clCanvas() {
 
     ctx = document.getElementById('canvas').getContext('2d');
-    ctx.clearRect(0, 0, 500, 500);
+    ctx.clearRect(0, 0, 6000, 6000);
 
 }
 
@@ -232,7 +265,7 @@ function draw() {
 function drawPlayer() {
 
     ctx.strokeStyle = 'black';
-    ctx.fillRect(plX, plY, 10, 10);
+    ctx.fillRect(plX, plY, 100, 100);
 
 }
 
@@ -241,22 +274,22 @@ function drawGoal() {
     // ctx.fillStyle = 'red';
     ctx.fillRect(goalX, goalY, goalSize, goalSize);
 }
+
 function resetGoal() {
-    goalX = Math.floor(Math.random() * 450);
-    goalY = Math.floor(Math.random() * 450);
+    goalX = Math.floor(Math.random() * 4500);
+    goalY = Math.floor(Math.random() * 4500);
 }
 
 function drawChaser() {
 
-    ctx.strokeRect(chX, chY, 15, 15);
+    ctx.lineWidth = 10;
+    ctx.strokeRect(chX, chY, 150, 150);
 }
 
 function resetChaser() {
 
-    chX = 450;
-    chY = 80;
-
-    // Begin follow algorithm
+    chX = 4500;
+    chY = 800;
 }
 
 /*
@@ -277,17 +310,58 @@ function directionVector(x, y, a, b) {
  * vector by a given speed. Accepts an array to
  * suit the output of the direction vector method.
  *
+ *  The vector is rounded because when travelling
+ *  diagonally the unit vector becomes a fraction.
+ *
+ *  TODO -NOTE-
+ *      Remember that the unit vector is rounded,
+ *      it may be something that works itself out
+ *     when more math is applied.
+ */
 function unitVector(x) {
 
-    return [Math.sqrt(x[0]^2 + x[1]^2) * x[0], Math.sqrt(x[0]^2 + x[1]^2) * x[1]];
-}*/
+    var i = x[0];
+    var j = x[1];
+
+    var mag =  Math.sqrt((i*i) + (j*j));
+
+    return [Math.round(i/mag), Math.round(j/mag)];
+}
 
 
 /*
-    Function to chase the player
+ *  Function to chase the player
+ *
+ * TODO
+ *      Look at why the chaser doesn't
+ *      catch the player if they're both moving.
+ *      - Something to do with the interpolation maybe.
+ *      _______KNOWN_______
+ *      - Chaser size initially not accounted for meaning the player's (0,0)
+ *        had to match the chaser's (0,0). Need to play with the
+ *        overlap range.
+ *
+ *  TODO
+ *      Sort out vector based movement
+ *      -   Use a vector for current velocity (Vector A).
+ *      -   Use a Vector for Target Velocity i.e. the vector from chaser
+ *          position to player position (Vector B).
+ *      -   Interpolate Vector A towards Vector B using
+ *      '
+ *                  A =  (A*t + (1 - t)*B)
+ *      '
+ *          where t is an arbitrary constant.
+ *
  */
 function chase() {
+
+    if (chaseSpeed < maxSpeed) {
+        chaseSpeed += acceleration;
+    }
+
+
     if (chX < plX) {
+
         chX += chaseSpeed;
     }
 
@@ -304,7 +378,15 @@ function chase() {
     }
 }
 
+function vectorChase() {
 
+}
+
+    /* TODO
+    *   Organise a debug class that renders useful information
+    *   Can be commented out.
+    *
+    */
 function myDebug() {
 
 }
